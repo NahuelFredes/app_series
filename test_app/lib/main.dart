@@ -18,8 +18,6 @@ class _TestAppState extends State<TestApp> {
     Tab(text: 'Series para Ver'),
   ];
 
-
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -44,110 +42,129 @@ class _TestAppState extends State<TestApp> {
                 children: myTabs.map((Tab tab) {
               final String label = tab.text;
               if (label == 'Series Vistas') {
-                return FutureBuilder(
-                    future: getDates('watched.json'),
+                return StreamBuilder(
+                    stream: Stream.periodic(Duration(seconds: 1))
+                        .asyncMap((i) => getDates('watched.json'))
+                        .asBroadcastStream(),
                     builder: (context, snapshot) {
-                      Map<String, dynamic> dates = snapshot.data;
-                      if (dates == null) {
+                      if (snapshot.data == null) {
                         return Center(child: Text('No hay series'));
                       } else {
-                        return Center(
-                            child: ListView.builder(
-                                //itemExtent: 115,
-                                itemCount: dates.length,
-                                itemBuilder: (context, index) {
+                        Map<String, dynamic> dates = snapshot.data;
+                        if (dates == null) {
+                          return Center(child: Text('No hay series'));
+                        } else {
+                          return Center(
+                              child: ListView.builder(
+                                  //itemExtent: 115,
+                                  itemCount: dates.length,
+                                  itemBuilder: (context, index) {
+                                    var key = dates.keys.toList()[index];
 
-                                  var key = dates.keys.toList()[index];
+                                    return Dismissible(
+                                      key: Key(dates[index]),
+                                      child: ListTile(
+                                        title: Text(
+                                            dates[key.toString()]['Title'],
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white)),
+                                        subtitle: Text(
+                                            dates[key.toString()]['Plot'],
+                                            style: TextStyle(
+                                                color: Colors.white70)),
+                                        leading: SizedBox(
+                                            height: 100,
+                                            child: Image.network(
+                                                dates[key.toString()]['Poster'],
+                                                fit: BoxFit.cover)),
+                                      ),
+                                      background: Container(
+                                          color: Colors.red[800],
+                                          child: Icon(Icons.delete)),
+                                      onDismissed: (direction) {
+                                        dates.remove(key);
 
-                                  return Dismissible(
-                                    key: Key(dates[index]),
-                                    child: ListTile(
-                                      title: Text(
-                                          dates[key.toString()]['Title'],
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold)),
-                                      subtitle:
-                                          Text(dates[key.toString()]['Plot']),
-                                      leading: SizedBox(
-                                          height: 100,
-                                          child: Image.network(
-                                              dates[key.toString()]['Poster'],
-                                              fit: BoxFit.cover)),
-                                    ),
-                                    background: Container(
-                                        color: Colors.red[800],
-                                        child: Icon(Icons.delete)),
-                                    onDismissed: (direction) {
-                                      dates.remove(key);
-
-                                      getApplicationDocumentsDirectory()
-                                          .then((Directory directory) {
-                                        File jsonFile = File(directory.path +
-                                            '/' +
-                                            'watched.json');
-                                        Map jsonFileContent = jsonDecode(
-                                            jsonFile.readAsStringSync());
-                                        jsonFileContent
-                                            .remove(key.toString());
-                                        jsonFile.writeAsString(
-                                            jsonEncode(jsonFileContent));
-                                      });
-                                    },
-                                  );
-                                }));
+                                        getApplicationDocumentsDirectory()
+                                            .then((Directory directory) {
+                                          File jsonFile = File(directory.path +
+                                              '/' +
+                                              'watched.json');
+                                          Map jsonFileContent = jsonDecode(
+                                              jsonFile.readAsStringSync());
+                                          jsonFileContent
+                                              .remove(key.toString());
+                                          jsonFile.writeAsString(
+                                              jsonEncode(jsonFileContent));
+                                        });
+                                      },
+                                    );
+                                  }));
+                        }
                       }
                     });
               } else {
-                return FutureBuilder(
-                    future: getDates('towatch.json'),
+                return StreamBuilder(
+                    stream: Stream.periodic(Duration(seconds: 1))
+                        .asyncMap((i) => getDates('towatch.json'))
+                        .asBroadcastStream(),
                     builder: (context, snapshot) {
-                      Map<String, dynamic> dates = snapshot.data;
-                      if (dates == null) {
+                      if (snapshot.data == null) {
                         return Center(child: Text('No hay series'));
                       } else {
-                      return Center(
-                          child: ListView.builder(
-                              //itemExtent: 115,
-                              itemCount: dates.length,
-                              itemBuilder: (context, index) {
+                        Map<String, dynamic> dates = snapshot.data;
+                        if (dates == null) {
+                          return Center(child: Text('No hay series'));
+                        } else {
+                          return Center(
+                              child: ListView.builder(
+                                  //itemExtent: 115,
+                                  itemCount: dates.length,
+                                  itemBuilder: (context, index) {
+                                    var key = dates.keys.toList()[index];
+                                    return Dismissible(
+                                      key: Key(dates[index]),
+                                      child: ListTile(
+                                        title: Text(
+                                            dates[key.toString()]['Title'],
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white)),
+                                        subtitle: Text(
+                                            dates[key.toString()]['Plot'],
+                                            style: TextStyle(
+                                                color: Colors.white70)),
+                                        leading: SizedBox(
+                                            height: 100,
+                                            child: Image.network(
+                                                dates[key.toString()]['Poster'],
+                                                fit: BoxFit.cover)),
+                                      ),
+                                      background: Container(
+                                          color: Colors.red[800],
+                                          child: Icon(Icons.delete)),
+                                      onDismissed: (direction) {
+                                        dates.remove(key);
 
-                                var key = dates.keys.toList()[index];
-                                return Dismissible(
-                                  key: Key(dates[index]),
-                                  child: ListTile(
-                                    title: Text(dates[key.toString()]['Title'],
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold)),
-                                    subtitle:
-                                        Text(dates[key.toString()]['Plot']),
-                                    leading: SizedBox(
-                                        height: 100,
-                                        child: Image.network(
-                                            dates[key.toString()]['Poster'],
-                                            fit: BoxFit.cover)),
-                                  ),
-                                  background: Container(
-                                      color: Colors.red[800],
-                                      child: Icon(Icons.delete)),
-                                  onDismissed: (direction) {
-                                    dates.remove(key);
-
-                                    getApplicationDocumentsDirectory()
-                                        .then((Directory directory) {
-                                      File jsonFile = File(directory.path +
-                                          '/' +
-                                          'towatch.json');
-                                      Map jsonFileContent = jsonDecode(
-                                          jsonFile.readAsStringSync());
-                                      jsonFileContent.remove(key.toString());
-                                      jsonFile.writeAsString(
-                                          jsonEncode(jsonFileContent));
-                                    });
-                                  },
-                                );
-                              }));}
+                                        getApplicationDocumentsDirectory()
+                                            .then((Directory directory) {
+                                          File jsonFile = File(directory.path +
+                                              '/' +
+                                              'towatch.json');
+                                          Map jsonFileContent = jsonDecode(
+                                              jsonFile.readAsStringSync());
+                                          jsonFileContent
+                                              .remove(key.toString());
+                                          jsonFile.writeAsString(
+                                              jsonEncode(jsonFileContent));
+                                        });
+                                      },
+                                    );
+                                  }));
+                        }
+                      }
                     });
               }
             }).toList()),
@@ -156,19 +173,16 @@ class _TestAppState extends State<TestApp> {
   }
 }
 
-  
-
 Future getDates(file) async {
   final directorio = await getApplicationDocumentsDirectory();
   File jsonFile = File(directorio.path + '/' + file);
   Map dates = jsonDecode(jsonFile.readAsStringSync());
   final fileExists = jsonFile.existsSync();
-  if(fileExists!=false){
-  return dates;
-  }else{
+  if (fileExists != false) {
+    return dates;
+  } else {
     return null;
   }
-  
 }
 
 Future getData(data) async {
@@ -214,304 +228,316 @@ class DataSearch extends SearchDelegate<String> {
       future: getData(query),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          return Center(
+          return Container(
+              alignment: Alignment.topLeft,
+              color: Colors.grey[850],
               child: ListView(
-            children: <Widget>[
-              Image.network(snapshot.data['Poster']),
-              Text(snapshot.data['Title'],
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              Text(snapshot.data['Plot']),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <
-                  Widget>[
-                SizedBox.fromSize(
-                  size: Size(80, 80), // button width and height
-                  child: ClipOval(
-                    child: Material(
-                      color: Colors.grey, // button color
-                      child: InkWell(
-                        splashColor: Colors.red, // splash color
-                        onTap: () {
-                          getApplicationDocumentsDirectory()
-                              .then((Directory directory) {
-                            File jsonFile =
-                                File(directory.path + '/' + 'watched.json');
-                            final fileExists = jsonFile.existsSync();
+                padding: EdgeInsets.all(50),
+                children: <Widget>[
+                  Image.network(snapshot.data['Poster']),
+                  Text(snapshot.data['Title'],
+                      style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),
+                  Text(snapshot.data['Plot'],style: TextStyle(color: Colors.white70)),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        SizedBox.fromSize(
+                          size: Size(68, 68), // button width and height
+                          child: ClipOval(
+                            child: Material(
+                              color: Colors.grey, // button color
+                              child: InkWell(
+                                splashColor: Colors.red, // splash color
+                                onTap: () {
+                                  getApplicationDocumentsDirectory()
+                                      .then((Directory directory) {
+                                    File jsonFile = File(
+                                        directory.path + '/' + 'watched.json');
+                                    final fileExists = jsonFile.existsSync();
 
-                            File jsonFileId =
-                                File(directory.path + '/' + 'id_watched.json');
-                            final fileExistsId = jsonFileId.existsSync();
-                            if (fileExistsId != false) {
-                              Map jsonFileContentId =
-                                  jsonDecode(jsonFileId.readAsStringSync());
-                              if (jsonFileContentId.isEmpty) {
-                                jsonFileId.writeAsString(jsonEncode({'id': 0}));
-                              } else {
-                                int finalContentId =
-                                    jsonFileContentId['id'] + 1;
-                                jsonFileId
-                                    .writeAsString(
-                                        jsonEncode({'id': finalContentId}))
-                                    .then((context) {
-                                  if (fileExists != false) {
-                                    int id = jsonDecode(
-                                        jsonFileId.readAsStringSync())['id'];
-                                    Map<String, dynamic> content = {
-                                      id.toString(): snapshot.data
-                                    };
-                                    Map jsonFileContent =
-                                        jsonDecode(jsonFile.readAsStringSync());
-                                    if (jsonFileContent.isEmpty) {
-                                      jsonFile
-                                          .writeAsString(jsonEncode(content));
+                                    File jsonFileId = File(directory.path +
+                                        '/' +
+                                        'id_watched.json');
+                                    final fileExistsId =
+                                        jsonFileId.existsSync();
+                                    if (fileExistsId != false) {
+                                      Map jsonFileContentId = jsonDecode(
+                                          jsonFileId.readAsStringSync());
+                                      if (jsonFileContentId.isEmpty) {
+                                        jsonFileId.writeAsString(
+                                            jsonEncode({'id': 0}));
+                                      } else {
+                                        int finalContentId =
+                                            jsonFileContentId['id'] + 1;
+                                        jsonFileId
+                                            .writeAsString(jsonEncode(
+                                                {'id': finalContentId}))
+                                            .then((context) {
+                                          if (fileExists != false) {
+                                            int id = jsonDecode(jsonFileId
+                                                .readAsStringSync())['id'];
+                                            Map<String, dynamic> content = {
+                                              id.toString(): snapshot.data
+                                            };
+                                            Map jsonFileContent = jsonDecode(
+                                                jsonFile.readAsStringSync());
+                                            if (jsonFileContent.isEmpty) {
+                                              jsonFile.writeAsString(
+                                                  jsonEncode(content));
+                                            } else {
+                                              jsonFileContent.addAll(content);
+                                              jsonFile.writeAsString(
+                                                  jsonEncode(jsonFileContent));
+                                            }
+                                          } else {
+                                            int id = jsonDecode(jsonFileId
+                                                .readAsStringSync())['id'];
+                                            Map<String, dynamic> content = {
+                                              id.toString(): snapshot.data
+                                            };
+                                            jsonFile.create();
+                                            jsonFile
+                                                .writeAsString(jsonEncode({}))
+                                                .then((context) {
+                                              Map jsonFileContent = jsonDecode(
+                                                  jsonFile.readAsStringSync());
+                                              if (jsonFileContent.isEmpty) {
+                                                jsonFile.writeAsString(
+                                                    jsonEncode(content));
+                                              } else {
+                                                jsonDecode(jsonFile
+                                                        .readAsStringSync())
+                                                    .addAll(content);
+                                                jsonFile.writeAsString(
+                                                    jsonEncode(
+                                                        jsonFileContent));
+                                              }
+                                            });
+                                          }
+                                        });
+                                      }
                                     } else {
-                                      jsonFileContent.addAll(content);
-                                      jsonFile.writeAsString(
-                                          jsonEncode(jsonFileContent));
+                                      jsonFileId.create();
+                                      jsonFileId
+                                          .writeAsString(jsonEncode({'id': 0}))
+                                          .then((context) {
+                                        if (fileExists != false) {
+                                          int id = jsonDecode(jsonFileId
+                                              .readAsStringSync())['id'];
+                                          Map<String, dynamic> content = {
+                                            id.toString(): snapshot.data
+                                          };
+                                          Map jsonFileContent = jsonDecode(
+                                              jsonFile.readAsStringSync());
+                                          if (jsonFileContent.isEmpty) {
+                                            jsonFile.writeAsString(
+                                                jsonEncode(content));
+                                          } else {
+                                            jsonFileContent.addAll(content);
+                                            jsonFile.writeAsString(
+                                                jsonEncode(jsonFileContent));
+                                          }
+                                        } else {
+                                          int id = jsonDecode(jsonFileId
+                                              .readAsStringSync())['id'];
+                                          Map<String, dynamic> content = {
+                                            id.toString(): snapshot.data
+                                          };
+                                          jsonFile.create();
+                                          jsonFile
+                                              .writeAsString(jsonEncode({}))
+                                              .then((context) {
+                                            Map jsonFileContent = jsonDecode(
+                                                jsonFile.readAsStringSync());
+                                            if (jsonFileContent.isEmpty) {
+                                              jsonFile.writeAsString(
+                                                  jsonEncode(content));
+                                            } else {
+                                              jsonDecode(jsonFile
+                                                      .readAsStringSync())
+                                                  .addAll(content);
+                                              jsonFile.writeAsString(
+                                                  jsonEncode(jsonFileContent));
+                                            }
+                                          });
+                                        }
+                                      });
+                                    }
+                                  });
+                                }, // button pressed
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Icon(Icons.add), // icon
+                                    Text("Watched",
+                                        textAlign: TextAlign.center), // text
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox.fromSize(
+                          size: Size(68, 68), // button width and height
+                          child: ClipOval(
+                            child: Material(
+                              color: Colors.grey, // button color
+                              child: InkWell(
+                                splashColor: Colors.red, // splash color
+                                onTap: () {
+                                  getApplicationDocumentsDirectory()
+                                      .then((Directory directory) {
+                                    File jsonFile = File(
+                                        directory.path + '/' + 'towatch.json');
+                                    final fileExists = jsonFile.existsSync();
 
-                                                                              }
-                                                                            } else {
-                                                                              int id = jsonDecode(
-                                                                                  jsonFileId.readAsStringSync())['id'];
-                                                                              Map<String, dynamic> content = {
-                                                                                id.toString(): snapshot.data
-                                                                              };
-                                                                              jsonFile.create();
-                                                                              jsonFile
-                                                                                  .writeAsString(jsonEncode({}))
-                                                                                  .then((context) {
-                                                                                Map jsonFileContent = jsonDecode(
-                                                                                    jsonFile.readAsStringSync());
-                                                                                if (jsonFileContent.isEmpty) {
-                                                                                  jsonFile
-                                                                                      .writeAsString(jsonEncode(content));
-                                                                                } else {
-                                                                                  jsonDecode(jsonFile.readAsStringSync())
-                                                                                      .addAll(content);
-                                                                                  jsonFile.writeAsString(
-                                                                                      jsonEncode(jsonFileContent));
-                                                                                }
-                                                                              });
-                                                                            }
-                                                                          });
-                                                                        }
-                                                                      } else {
-                                                                        jsonFileId.create();
-                                                                        jsonFileId
-                                                                            .writeAsString(jsonEncode({'id': 0}))
-                                                                            .then((context) {
-                                                                          if (fileExists != false) {
-                                                                            int id = jsonDecode(
-                                                                                jsonFileId.readAsStringSync())['id'];
-                                                                            Map<String, dynamic> content = {
-                                                                              id.toString(): snapshot.data
-                                                                            };
-                                                                            Map jsonFileContent =
-                                                                                jsonDecode(jsonFile.readAsStringSync());
-                                                                            if (jsonFileContent.isEmpty) {
-                                                                              jsonFile.writeAsString(jsonEncode(content));
-                                                                            } else {
-                                                                              jsonFileContent.addAll(content);
-                                                                              jsonFile.writeAsString(
-                                                                                  jsonEncode(jsonFileContent));
-                                          
-                                                                            }
-                                                                          } else {
-                                                                            int id = jsonDecode(
-                                                                                jsonFileId.readAsStringSync())['id'];
-                                                                            Map<String, dynamic> content = {
-                                                                              id.toString(): snapshot.data
-                                                                            };
-                                                                            jsonFile.create();
-                                                                            jsonFile
-                                                                                .writeAsString(jsonEncode({}))
-                                                                                .then((context) {
-                                                                              Map jsonFileContent =
-                                                                                  jsonDecode(jsonFile.readAsStringSync());
-                                                                              if (jsonFileContent.isEmpty) {
-                                                                                jsonFile
-                                                                                    .writeAsString(jsonEncode(content));
-                                                                              } else {
-                                                                                jsonDecode(jsonFile.readAsStringSync())
-                                                                                    .addAll(content);
-                                                                                jsonFile.writeAsString(
-                                                                                    jsonEncode(jsonFileContent));
-                                                                              }
-                                                                            });
-                                                                          }
-                                                                        });
-                                                                      }
-                                                                    });
-                                                                  }, // button pressed
-                                                                  child: Column(
-                                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                                    children: <Widget>[
-                                                                      Icon(Icons.add), // icon
-                                                                      Text("Add Watched",
-                                                                          textAlign: TextAlign.center), // text
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          SizedBox.fromSize(
-                                                            size: Size(80, 80), // button width and height
-                                                            child: ClipOval(
-                                                              child: Material(
-                                                                color: Colors.grey, // button color
-                                                                child: InkWell(
-                                                                  splashColor: Colors.red, // splash color
-                                                                  onTap: () {
-                                                                    getApplicationDocumentsDirectory()
-                                                                        .then((Directory directory) {
-                                                                      File jsonFile =
-                                                                          File(directory.path + '/' + 'towatch.json');
-                                                                      final fileExists = jsonFile.existsSync();
-                                          
-                                                                      File jsonFileId =
-                                                                          File(directory.path + '/' + 'id_towatch.json');
-                                                                      final fileExistsId = jsonFileId.existsSync();
-                                          
-                                                                      if (fileExistsId != false) {
-                                                                        Map jsonFileContentId =
-                                                                            jsonDecode(jsonFileId.readAsStringSync());
-                                                                        if (jsonFileContentId.isEmpty) {
-                                                                          jsonFileId.writeAsString(jsonEncode({'id': 0}));
-                                                                        } else {
-                                                                          int finalContentId =
-                                                                              jsonFileContentId['id'] + 1;
-                                                                          jsonFileId
-                                                                              .writeAsString(
-                                                                                  jsonEncode({'id': finalContentId}))
-                                                                              .then((context) {
-                                                                            if (fileExists != false) {
-                                                                              int id = jsonDecode(
-                                                                                  jsonFileId.readAsStringSync())['id'];
-                                                                              Map<String, dynamic> content = {
-                                                                                id.toString(): snapshot.data
-                                                                              };
-                                                                              Map jsonFileContent =
-                                                                                  jsonDecode(jsonFile.readAsStringSync());
-                                                                              if (jsonFileContent.isEmpty) {
-                                                                                jsonFile
-                                                                                    .writeAsString(jsonEncode(content));
-                                                                              } else {
-                                                                                jsonFileContent.addAll(content);
-                                                                                jsonFile.writeAsString(
-                                                                                    jsonEncode(jsonFileContent));
-                                          
-                                                                              }
-                                                                            } else {
-                                                                              int id = jsonDecode(
-                                                                                  jsonFileId.readAsStringSync())['id'];
-                                                                              Map<String, dynamic> content = {
-                                                                                id.toString(): snapshot.data
-                                                                              };
-                                                                              jsonFile.create();
-                                                                              jsonFile
-                                                                                  .writeAsString(jsonEncode({}))
-                                                                                  .then((context) {
-                                                                                Map jsonFileContent = jsonDecode(
-                                                                                    jsonFile.readAsStringSync());
-                                                                                if (jsonFileContent.isEmpty) {
-                                                                                  jsonFile
-                                                                                      .writeAsString(jsonEncode(content));
-                                                                                } else {
-                                                                                  jsonDecode(jsonFile.readAsStringSync())
-                                                                                      .addAll(content);
-                                                                                  jsonFile.writeAsString(
-                                                                                      jsonEncode(jsonFileContent));
-                                                                                }
-                                                                              });
-                                                                            }
-                                                                          });
-                                                                        }
-                                                                      } else {
-                                                                        jsonFileId.create();
-                                                                        jsonFileId
-                                                                            .writeAsString(jsonEncode({'id': 0}))
-                                                                            .then((context) {
-                                                                          if (fileExists != false) {
-                                                                            int id = jsonDecode(
-                                                                                jsonFileId.readAsStringSync())['id'];
-                                                                            Map<String, dynamic> content = {
-                                                                              id.toString(): snapshot.data
-                                                                            };
-                                                                            Map jsonFileContent =
-                                                                                jsonDecode(jsonFile.readAsStringSync());
-                                                                            if (jsonFileContent.isEmpty) {
-                                                                              jsonFile.writeAsString(jsonEncode(content));
-                                                                            } else {
-                                                                              jsonFileContent.addAll(content);
-                                                                              jsonFile.writeAsString(
-                                                                                  jsonEncode(jsonFileContent));
-                                          
-                                                                            }
-                                                                          } else {
-                                                                            int id = jsonDecode(
-                                                                                jsonFileId.readAsStringSync())['id'];
-                                                                            Map<String, dynamic> content = {
-                                                                              id.toString(): snapshot.data
-                                                                            };
-                                                                            jsonFile.create();
-                                                                            jsonFile
-                                                                                .writeAsString(jsonEncode({}))
-                                                                                .then((context) {
-                                                                              Map jsonFileContent =
-                                                                                  jsonDecode(jsonFile.readAsStringSync());
-                                                                              if (jsonFileContent.isEmpty) {
-                                                                                jsonFile
-                                                                                    .writeAsString(jsonEncode(content));
-                                                                              } else {
-                                                                                jsonDecode(jsonFile.readAsStringSync())
-                                                                                    .addAll(content);
-                                                                                jsonFile.writeAsString(
-                                                                                    jsonEncode(jsonFileContent));
-                                                                              }
-                                                                            });
-                                                                          }
-                                                                        });
-                                                                      }
-                                                                    });
-                                                                  }, // button pressed
-                                                                  child: Column(
-                                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                                    children: <Widget>[
-                                                                      Icon(Icons.add), // icon
-                                                                      Text("Add to Watch",
-                                                                          textAlign: TextAlign.center), // text
-                                                                    ],
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          )
-                                                        ]),
-                                                      ],
-                                                    ));
-                                                  } else {
-                                                    return Center(
-                                                      child: Text('Conection Lost'),
-                                                    );
-                                                  }
-                                                },
-                                              );
+                                    File jsonFileId = File(directory.path +
+                                        '/' +
+                                        'id_towatch.json');
+                                    final fileExistsId =
+                                        jsonFileId.existsSync();
+
+                                    if (fileExistsId != false) {
+                                      Map jsonFileContentId = jsonDecode(
+                                          jsonFileId.readAsStringSync());
+                                      if (jsonFileContentId.isEmpty) {
+                                        jsonFileId.writeAsString(
+                                            jsonEncode({'id': 0}));
+                                      } else {
+                                        int finalContentId =
+                                            jsonFileContentId['id'] + 1;
+                                        jsonFileId
+                                            .writeAsString(jsonEncode(
+                                                {'id': finalContentId}))
+                                            .then((context) {
+                                          if (fileExists != false) {
+                                            int id = jsonDecode(jsonFileId
+                                                .readAsStringSync())['id'];
+                                            Map<String, dynamic> content = {
+                                              id.toString(): snapshot.data
+                                            };
+                                            Map jsonFileContent = jsonDecode(
+                                                jsonFile.readAsStringSync());
+                                            if (jsonFileContent.isEmpty) {
+                                              jsonFile.writeAsString(
+                                                  jsonEncode(content));
+                                            } else {
+                                              jsonFileContent.addAll(content);
+                                              jsonFile.writeAsString(
+                                                  jsonEncode(jsonFileContent));
                                             }
-                                          
-                                            @override
-                                            Widget buildSuggestions(BuildContext context) {
-                                              final suggestionList = query.isEmpty
-                                                  ? citiesRecientes
-                                                  : cities.where((p) => p.startsWith(query)).toList();
-                                          
-                                              return ListView.builder(
-                                                itemBuilder: (context, index) => ListTile(
-                                                  leading: Icon(Icons.location_city),
-                                                  title: Text(suggestionList[index]),
-                                                ),
-                                                itemCount: suggestionList.length,
-                                              );
+                                          } else {
+                                            int id = jsonDecode(jsonFileId
+                                                .readAsStringSync())['id'];
+                                            Map<String, dynamic> content = {
+                                              id.toString(): snapshot.data
+                                            };
+                                            jsonFile.create();
+                                            jsonFile
+                                                .writeAsString(jsonEncode({}))
+                                                .then((context) {
+                                              Map jsonFileContent = jsonDecode(
+                                                  jsonFile.readAsStringSync());
+                                              if (jsonFileContent.isEmpty) {
+                                                jsonFile.writeAsString(
+                                                    jsonEncode(content));
+                                              } else {
+                                                jsonDecode(jsonFile
+                                                        .readAsStringSync())
+                                                    .addAll(content);
+                                                jsonFile.writeAsString(
+                                                    jsonEncode(
+                                                        jsonFileContent));
+                                              }
+                                            });
+                                          }
+                                        });
+                                      }
+                                    } else {
+                                      jsonFileId.create();
+                                      jsonFileId
+                                          .writeAsString(jsonEncode({'id': 0}))
+                                          .then((context) {
+                                        if (fileExists != false) {
+                                          int id = jsonDecode(jsonFileId
+                                              .readAsStringSync())['id'];
+                                          Map<String, dynamic> content = {
+                                            id.toString(): snapshot.data
+                                          };
+                                          Map jsonFileContent = jsonDecode(
+                                              jsonFile.readAsStringSync());
+                                          if (jsonFileContent.isEmpty) {
+                                            jsonFile.writeAsString(
+                                                jsonEncode(content));
+                                          } else {
+                                            jsonFileContent.addAll(content);
+                                            jsonFile.writeAsString(
+                                                jsonEncode(jsonFileContent));
+                                          }
+                                        } else {
+                                          int id = jsonDecode(jsonFileId
+                                              .readAsStringSync())['id'];
+                                          Map<String, dynamic> content = {
+                                            id.toString(): snapshot.data
+                                          };
+                                          jsonFile.create();
+                                          jsonFile
+                                              .writeAsString(jsonEncode({}))
+                                              .then((context) {
+                                            Map jsonFileContent = jsonDecode(
+                                                jsonFile.readAsStringSync());
+                                            if (jsonFileContent.isEmpty) {
+                                              jsonFile.writeAsString(
+                                                  jsonEncode(content));
+                                            } else {
+                                              jsonDecode(jsonFile
+                                                      .readAsStringSync())
+                                                  .addAll(content);
+                                              jsonFile.writeAsString(
+                                                  jsonEncode(jsonFileContent));
                                             }
-                                          
-                                           
+                                          });
+                                        }
+                                      });
+                                    }
+                                  });
+                                }, // button pressed
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Icon(Icons.add), // icon
+                                    Text("To Watch",
+                                        textAlign: TextAlign.center), // text
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      ]),
+                ],
+              ));
+        } else {
+          return Center(
+            child: Text('Conection Lost'),
+          );
+        }
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final suggestionList = query.isEmpty
+        ? citiesRecientes
+        : cities.where((p) => p.startsWith(query)).toList();
+
+    return ListView.builder(
+      itemBuilder: (context, index) => ListTile(
+        leading: Icon(Icons.location_city),
+        title: Text(suggestionList[index]),
+      ),
+      itemCount: suggestionList.length,
+    );
+  }
 }
